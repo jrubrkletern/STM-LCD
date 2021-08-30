@@ -42,24 +42,31 @@ void LCD_Display_Pixel(uint16_t x, uint16_t y, uint16_t color) {
 }
 
 void LCD_Display_Char(uint8_t character, uint16_t x, uint16_t y, uint16_t color) {	
-	LCD_Set_Window(x, y, x + CHAR_WIDTH-1, y + CHAR_HEIGHT-1);
-	uint8_t pixel_Data[2] = { color >> 8, color };
+	//LCD_Set_Window(x, y, x + CHAR_WIDTH-1, y + CHAR_HEIGHT-1);
+	//uint8_t pixel_Data[2] = { color >> 8, color };
 	for (uint8_t i = 0; i < CHAR_WIDTH; i++) {
 		for (uint8_t j = 0; j < CHAR_HEIGHT; j++) {
 			if ((font[character][i]) & (1 << j)) {		
-				LCD_Display_Pixel(x + i, y + j, color);		
-			}	
+				LCD_Display_Pixel(x + i, y + j, color);	
+				//pixel_Data[0] = color >> 8;
+				//pixel_Data[1] = color;
+				//LCD_Send_Data(pixel_Data, 2);
+			} else { 
+				//pixel_Data[0] = 0x0000 >> 8;
+				//pixel_Data[1] = 0x0000;
+				//LCD_Send_Data(pixel_Data, 2);
+				}
 		}
 	}
 	
 }
-//possibly have a counter going see how many times this display pixel function is used?
+
 void LCD_Setup_Screen(void) {
 	uint8_t pixel_Data[2] = { 0x0000 >> 8, 0x0000 };
 	LCD_Set_Window(0, 0, 360, 240);
 	for (int i = 0; i < 360; i++) {
 		for (int j = 0; j < 240 ; j++) {	
-			LCD_Send_Data(pixel_Data, 2);			
+			LCD_Send_Data(pixel_Data, 2);	
 		}		
 	}
 	HAL_Delay(10);
@@ -69,33 +76,48 @@ void LCD_Setup_Screen(void) {
 	LCD_Display_Char(12, 200, 200, 0xFFFF);
 }
 	
-void LCD_Clear_Result(uint8_t x, uint8_t y, uint8_t z) {
-	if (!x) {
+void LCD_Clear_Result(uint8_t x_Same, uint8_t y_Same, uint8_t z_Same) {
+	if (!x_Same) {
 		LCD_Display_Char(num[0], 40, 165, 0x0000);
 		LCD_Display_Char(num[1], 40, 150, 0x0000);
 		LCD_Display_Char(num[2], 40, 135, 0x0000);
 		if (num[9] == '-') 
 			LCD_Display_Char(13, 40, 180, 0x0000);
 	}
-	if(!y) {
+	if(!y_Same) {
 		LCD_Display_Char(num[3], 120, 165, 0x0000);
 		LCD_Display_Char(num[4], 120, 150, 0x0000);
 		LCD_Display_Char(num[5], 120, 135, 0x0000);
 		if (num[10] == '-') 
 			LCD_Display_Char(13, 120, 180, 0x0000);
 	}
-	if(!z) {
+	if(!z_Same) {
 		LCD_Display_Char(num[6], 200, 165, 0x0000);
 		LCD_Display_Char(num[7], 200, 150, 0x0000);
 		LCD_Display_Char(num[8], 200, 135, 0x0000);
 		if (num[11] == '-') 
 			LCD_Display_Char(13, 200, 180, 0x0000);
-	}
+	}	
+}
 
+void LCD_Print_Coords(uint8_t x_Same, uint8_t y_Same, uint8_t z_Same) {
+	if (!x_Same) {
+		LCD_Display_Char(num[0], 40, 165, 0xFFFF);
+		LCD_Display_Char(num[1], 40, 150, 0xFFFF);
+		LCD_Display_Char(num[2], 40, 135, 0xFFFF);
+	}
 	
-	
-	
-	
+	if (!y_Same) {
+		LCD_Display_Char(num[3], 120, 165, 0xFFFF);
+		LCD_Display_Char(num[4], 120, 150, 0xFFFF);
+		LCD_Display_Char(num[5], 120, 135, 0xFFFF);
+	}
+		
+	if (!z_Same) {
+		LCD_Display_Char(num[6], 200, 165, 0xFFFF);
+		LCD_Display_Char(num[7], 200, 150, 0xFFFF);
+		LCD_Display_Char(num[8], 200, 135, 0xFFFF);
+	}
 }
 	
 void LCD_Init(void)
@@ -131,23 +153,9 @@ void LCD_Init(void)
 
 }
 
-void LCD_Print_X(void) {
-	LCD_Display_Char(num[0], 40, 165, 0xFFFF);
-	LCD_Display_Char(num[1], 40, 150, 0xFFFF);
-	LCD_Display_Char(num[2], 40, 135, 0xFFFF);
-}
 
-void LCD_Print_Y(void) {
-	LCD_Display_Char(num[3], 120, 165, 0xFFFF);
-	LCD_Display_Char(num[4], 120, 150, 0xFFFF);
-	LCD_Display_Char(num[5], 120, 135, 0xFFFF);
-}
 
-void LCD_Print_Z(void) {
-	LCD_Display_Char(num[6], 200, 165, 0xFFFF);
-	LCD_Display_Char(num[7], 200, 150, 0xFFFF);
-	LCD_Display_Char(num[8], 200, 135, 0xFFFF);
-}
+
 
 void LCD_Get_Chars(int16_t x_Final, int16_t y_Final, int16_t z_Final) {
 	gyroResult = x_Final;

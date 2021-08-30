@@ -32,15 +32,8 @@ int main(void)
 				
 					LCD_Get_Chars(x_Final, y_Final, z_Final);
 					
-					if(x_Final != x_Final_Last) {
-						LCD_Print_X();
-					}
-					if(y_Final != y_Final_Last) {
-						LCD_Print_Y();
-					}
-					if(z_Final != z_Final_Last) {
-						LCD_Print_Z();
-					}
+					LCD_Print_Coords((x_Final == x_Final_Last), (y_Final == y_Final_Last), (z_Final == z_Final_Last));
+					
 					gyroSamples = 0;
 					x_Final_Last = x_Final;		
 					y_Final_Last = y_Final;	
