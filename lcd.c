@@ -34,6 +34,7 @@ void LCD_Set_Window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
 	LCD_Send_Cmd(0x2C); 
 	
 }
+
 void LCD_Display_Pixel(uint16_t x, uint16_t y, uint16_t color) {		
 	LCD_Set_Window(x, y, (x), (y));
 	uint8_t pixel_Buffer[2] = { color >> 8, color};
@@ -41,24 +42,17 @@ void LCD_Display_Pixel(uint16_t x, uint16_t y, uint16_t color) {
 	
 }
 
-void LCD_Display_Char(uint8_t character, uint16_t x, uint16_t y, uint16_t color) {	
-	//LCD_Set_Window(x, y, x + CHAR_WIDTH-1, y + CHAR_HEIGHT-1);
-	//uint8_t pixel_Data[2] = { color >> 8, color };
-	for (uint8_t i = 0; i < CHAR_WIDTH; i++) {
-		for (uint8_t j = 0; j < CHAR_HEIGHT; j++) {
-			if ((font[character][i]) & (1 << j)) {		
-				LCD_Display_Pixel(x + i, y + j, color);	
-				//pixel_Data[0] = color >> 8;
-				//pixel_Data[1] = color;
-				//LCD_Send_Data(pixel_Data, 2);
+void LCD_Display_Char(uint8_t character, uint16_t x, uint16_t y) {	
+	LCD_Set_Window(x, y, x + CHAR_WIDTH-1, y + CHAR_HEIGHT-1);
+	for (uint8_t i = 0; i < CHAR_HEIGHT; i++) {
+		for (uint8_t j = 0; j < CHAR_WIDTH; j++) {
+			if ((font[character][0 + j]) & (1 << i)) {		
+				LCD_Send_Data(pixel_Data, 2);
 			} else { 
-				//pixel_Data[0] = 0x0000 >> 8;
-				//pixel_Data[1] = 0x0000;
-				//LCD_Send_Data(pixel_Data, 2);
-				}
+				LCD_Send_Data(bg_Data, 2);
+			}
 		}
-	}
-	
+	}	
 }
 
 void LCD_Setup_Screen(void) {
@@ -70,65 +64,133 @@ void LCD_Setup_Screen(void) {
 		}		
 	}
 	HAL_Delay(10);
+	//initial x
+	LCD_Display_Char(10, 40, 200);
+	LCD_Display_Char(0, 40, 165);
+	LCD_Display_Char(0, 40, 150);
+	LCD_Display_Char(0, 40, 135);
 	
-	LCD_Display_Char(10, 40, 200, 0xFFFF);
-	LCD_Display_Char(11, 120, 200, 0xFFFF);
-	LCD_Display_Char(12, 200, 200, 0xFFFF);
+	//initial y
+	LCD_Display_Char(11, 120, 200);
+	LCD_Display_Char(0, 120, 165);
+	LCD_Display_Char(0, 120, 150);
+	LCD_Display_Char(0, 120, 135);
+	
+	//initial z
+	LCD_Display_Char(12, 200, 200);
+	LCD_Display_Char(0, 200, 165);
+	LCD_Display_Char(0, 200, 150);
+	LCD_Display_Char(0, 200, 135);
 }
-	
+
+void LCD_Clear_Char(uint8_t character, uint16_t x, uint16_t y) {	
+	LCD_Set_Window(x, y, x + CHAR_WIDTH - 1, y + CHAR_HEIGHT - 1);
+	for (uint8_t i = 0; i < CHAR_HEIGHT; i++) {
+		for (uint8_t j = 0; j < CHAR_WIDTH; j++) {
+				LCD_Send_Data(bg_Data, 2);		
+		}
+	}
+}
 void LCD_Clear_Result(uint8_t x_Same, uint8_t y_Same, uint8_t z_Same) {
 	if (!x_Same) {
-		LCD_Display_Char(num[0], 40, 165, 0x0000);
-		LCD_Display_Char(num[1], 40, 150, 0x0000);
-		LCD_Display_Char(num[2], 40, 135, 0x0000);
+		if (num[0] != num_Last[0]) {
+			LCD_Clear_Char(num[0], 40, 165);
+		}
+		if (num[1] != num_Last[1]) {
+			LCD_Clear_Char(num[1], 40, 150);
+		}
+		if (num[2] != num_Last[2]) {
+			LCD_Clear_Char(num[2], 40, 135);
+		}
+		
 		if (num[9] == '-') 
-			LCD_Display_Char(13, 40, 180, 0x0000);
+			LCD_Clear_Char(13, 40, 180);
 	}
 	if(!y_Same) {
-		LCD_Display_Char(num[3], 120, 165, 0x0000);
-		LCD_Display_Char(num[4], 120, 150, 0x0000);
-		LCD_Display_Char(num[5], 120, 135, 0x0000);
+		if (num[3] != num_Last[3]) {
+			LCD_Clear_Char(num[3], 120, 165);
+		}
+		if (num[4] != num_Last[4]) {
+			LCD_Clear_Char(num[4], 120, 150);
+		}
+		if (num[5] != num_Last[5]) {
+			LCD_Clear_Char(num[5], 120, 135);
+		}
 		if (num[10] == '-') 
-			LCD_Display_Char(13, 120, 180, 0x0000);
+			LCD_Clear_Char(13, 120, 180);
 	}
 	if(!z_Same) {
-		LCD_Display_Char(num[6], 200, 165, 0x0000);
-		LCD_Display_Char(num[7], 200, 150, 0x0000);
-		LCD_Display_Char(num[8], 200, 135, 0x0000);
+		if (num[6] != num_Last[6]) {
+			LCD_Clear_Char(num[6], 200, 165);
+		}
+		if (num[7] != num_Last[7]) {
+			LCD_Clear_Char(num[7], 200, 150);
+		}
+		if (num[8] != num_Last[8]) {
+			LCD_Clear_Char(num[8], 200, 135);
+		}
 		if (num[11] == '-') 
-			LCD_Display_Char(13, 200, 180, 0x0000);
+			LCD_Clear_Char(13, 200, 180);
 	}	
 }
 
 void LCD_Print_Coords(uint8_t x_Same, uint8_t y_Same, uint8_t z_Same) {
 	if (!x_Same) {
-		LCD_Display_Char(num[0], 40, 165, 0xFFFF);
-		LCD_Display_Char(num[1], 40, 150, 0xFFFF);
-		LCD_Display_Char(num[2], 40, 135, 0xFFFF);
+		if (num[0] != num_Last[0]) {
+			LCD_Display_Char(num[0], 40, 165);
+		}
+		if (num[1] != num_Last[1]) {
+			LCD_Display_Char(num[1], 40, 150);
+		}
+		if (num[2] != num_Last[2]) {
+			LCD_Display_Char(num[2], 40, 135);
+		}
+		
+		if (num[9] == '-') 
+			LCD_Display_Char(13, 40, 180);
 	}
-	
 	if (!y_Same) {
-		LCD_Display_Char(num[3], 120, 165, 0xFFFF);
-		LCD_Display_Char(num[4], 120, 150, 0xFFFF);
-		LCD_Display_Char(num[5], 120, 135, 0xFFFF);
+		if (num[3] != num_Last[3]) {
+			LCD_Display_Char(num[3], 120, 165);
+		}
+		if (num[4] != num_Last[4]) {
+			LCD_Display_Char(num[4], 120, 150);
+		}
+		if (num[5] != num_Last[5]) {
+			LCD_Display_Char(num[5], 120, 135);
+		}
+		if (num[10] == '-') 
+			LCD_Display_Char(13, 120, 180);
+	}
+	if (!z_Same) {
+		if (num[6] != num_Last[6]) {
+			LCD_Display_Char(num[6], 200, 165);
+		}
+		if (num[7] != num_Last[7]) {
+			LCD_Display_Char(num[7], 200, 150);
+		}
+		if (num[8] != num_Last[8]) {
+			LCD_Display_Char(num[8], 200, 135);
+		}
+		if (num[11] == '-') 
+			LCD_Display_Char(13, 200, 180);
+	}	
+
+	for (int i = 8; i >= 0; i--) {
+		num_Last[i] = num[i];
 	}
 		
-	if (!z_Same) {
-		LCD_Display_Char(num[6], 200, 165, 0xFFFF);
-		LCD_Display_Char(num[7], 200, 150, 0xFFFF);
-		LCD_Display_Char(num[8], 200, 135, 0xFFFF);
-	}
 }
 	
 void LCD_Init(void)
 {	
+	SPI5_LCD_RSX_GPIO_Port->ODR |= SPI5_LCD_RSX_Pin;
+	SPI5_LCD_RSX_GPIO_Port->ODR &= ~SPI5_LCD_RSX_Pin;
+	HAL_Delay(25);
+	SPI5_LCD_CE_GPIO_Port->ODR &= ~SPI5_LCD_CE_Pin;
+	HAL_Delay(25);
+	SPI5_LCD_RSX_GPIO_Port->ODR |= SPI5_LCD_RSX_Pin;
 	
-	HAL_GPIO_WritePin(SPI5_LCD_RSX_GPIO_Port, SPI5_LCD_RSX_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(SPI5_LCD_RSX_GPIO_Port, SPI5_LCD_RSX_Pin, GPIO_PIN_RESET);
-	HAL_Delay(200);
-	HAL_GPIO_WritePin(SPI5_LCD_CE_GPIO_Port, SPI5_LCD_CE_Pin, GPIO_PIN_RESET);
-	HAL_Delay(200);
-	HAL_GPIO_WritePin(SPI5_LCD_RSX_GPIO_Port, SPI5_LCD_RSX_Pin, GPIO_PIN_SET);	
 	uint8_t *data;
 	uint8_t test;
 	data = &test;
@@ -161,7 +223,7 @@ void LCD_Get_Chars(int16_t x_Final, int16_t y_Final, int16_t z_Final) {
 	gyroResult = x_Final;
 	if (gyroResult < 0) {
 		gyroResult = -gyroResult;
-		LCD_Display_Char(13, 40, 180, 0xFFFF);
+		LCD_Display_Char(13, 40, 180);
 		num[9] = '-';
 	}
 	else {
@@ -175,7 +237,7 @@ void LCD_Get_Chars(int16_t x_Final, int16_t y_Final, int16_t z_Final) {
 	if (gyroResult < 0) {
 		gyroResult = -gyroResult;
 						
-		LCD_Display_Char(13, 120, 180, 0xFFFF);
+		LCD_Display_Char(13, 120, 180);
 		num[10] = '-';
 	}
 	else {
@@ -189,7 +251,7 @@ void LCD_Get_Chars(int16_t x_Final, int16_t y_Final, int16_t z_Final) {
 	gyroResult = z_Final;
 	if (gyroResult < 0) {
 		gyroResult = -gyroResult;
-		LCD_Display_Char(13, 200, 180, 0xFFFF);
+		LCD_Display_Char(13, 200, 180);
 		num[11] = '-';
 	}
 	else {
