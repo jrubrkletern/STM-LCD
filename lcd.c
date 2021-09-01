@@ -14,21 +14,20 @@ void LCD_Send_Cmd(uint8_t data) { //CS Low DS Low
 
 void LCD_Send_Data(uint8_t *pBuffer, uint8_t size) { //CS Low DS High
 	SPI5_LCD_CE_GPIO_Port->ODR &= ~SPI5_LCD_CE_Pin;
-	SPI5_LCD_DSX_GPIO_Port->ODR |= SPI5_LCD_DSX_Pin;
 	HAL_SPI_Transmit(&hspi5, pBuffer, size, 1);
 	SPI5_LCD_CE_GPIO_Port->ODR |= SPI5_LCD_CE_Pin;
 }
 
 void LCD_Set_Window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
 	LCD_Send_Cmd(0x2A);      //x	
-	uint8_t coord_Buffer[4] = { (x1 >> 8) & 0xFF, x1  & 0xFF, (x2 >> 8)  & 0xFF, x2  & 0xFF};
+	uint8_t coord_Buffer[4] = { (x1 >> 8), x1, (x2 >> 8), x2};
 	LCD_Send_Data(coord_Buffer, 4);
-	
+
 	LCD_Send_Cmd(0x2B);      //y
-	coord_Buffer[0] = (y1 >> 8)  & 0xFF;
-	coord_Buffer[1] = y1  & 0xFF;
-	coord_Buffer[2] = (y2 >> 8)  & 0xFF;
-	coord_Buffer[3] = y2  & 0xFF;
+	coord_Buffer[0] = (y1 >> 8);
+	coord_Buffer[1] = y1 ;
+	coord_Buffer[2] = (y2 >> 8);
+	coord_Buffer[3] = y2;
 	LCD_Send_Data(coord_Buffer, 4);
 	
 	LCD_Send_Cmd(0x2C); 
@@ -46,7 +45,7 @@ void LCD_Display_Char(uint8_t character, uint16_t x, uint16_t y) {
 	LCD_Set_Window(x, y, x + CHAR_WIDTH-1, y + CHAR_HEIGHT-1);
 	for (uint8_t i = 0; i < CHAR_HEIGHT; i++) {
 		for (uint8_t j = 0; j < CHAR_WIDTH; j++) {
-			if ((font[character][0 + j]) & (1 << i)) {		
+			if ((font[character][j]) & (1 << i)) {		
 				LCD_Send_Data(pixel_Data, 2);
 			} else { 
 				LCD_Send_Data(bg_Data, 2);
@@ -56,11 +55,10 @@ void LCD_Display_Char(uint8_t character, uint16_t x, uint16_t y) {
 }
 
 void LCD_Setup_Screen(void) {
-	uint8_t pixel_Data[2] = { 0x0000 >> 8, 0x0000 };
 	LCD_Set_Window(0, 0, 360, 240);
 	for (int i = 0; i < 360; i++) {
 		for (int j = 0; j < 240 ; j++) {	
-			LCD_Send_Data(pixel_Data, 2);	
+			LCD_Send_Data(bg_Data, 2);	
 		}		
 	}
 	HAL_Delay(10);
