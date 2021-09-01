@@ -4,14 +4,7 @@
 #include <spi.c>
 #include <gyro.c>
 
-
-
-
-
-
-
-int main(void)
-{
+int main(void) {
 	HAL_Init();
 	SystemClock_Config();
 	GPIO_CLK_Init();
@@ -22,29 +15,27 @@ int main(void)
 	HAL_Delay(10);
 	LCD_Setup_Screen();
 	time1 = HAL_GetTick();
-		while (1) {
-			if (GYRO_Collect() == HAL_OK) {
-				GYRO_Calculate();
-				gyroSamples++;
-				if (gyroSamples > 5) {
+	while (1) {
+		if (GYRO_Collect() == HAL_OK) {
+			GYRO_Calculate();
+			gyroSamples++;
+			if (gyroSamples > 5) {
 					
-					LCD_Clear_Result((x_Final == x_Final_Last), (y_Final == y_Final_Last), (z_Final == z_Final_Last));
+				LCD_Clear_Result((x_Final == x_Final_Last), (y_Final == y_Final_Last), (z_Final == z_Final_Last));
 				
-					LCD_Get_Chars(x_Final, y_Final, z_Final);
+				LCD_Get_Chars(x_Final, y_Final, z_Final);
 					
-					LCD_Print_Coords((x_Final == x_Final_Last), (y_Final == y_Final_Last), (z_Final == z_Final_Last));
+				LCD_Print_Coords((x_Final == x_Final_Last), (y_Final == y_Final_Last), (z_Final == z_Final_Last));
 					
-					gyroSamples = 0;
-					x_Final_Last = x_Final;		
-					y_Final_Last = y_Final;	
-					z_Final_Last = z_Final;
+				gyroSamples = 0;
+				x_Final_Last = x_Final;		
+				y_Final_Last = y_Final;	
+				z_Final_Last = z_Final;
 							
-				}	
-			}
-	}
-	
+			}	
+		}
+	}	
 }
-
 void SystemClock_Config(void)
 {
 	RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
@@ -117,8 +108,7 @@ void SysTick_Handler(void) {
 
 void Error_Handler(void) {
 	__disable_irq();
-	while (1)
-	{
+	while (1) {
 		__ASM("bkpt 255");
 	}
 }
